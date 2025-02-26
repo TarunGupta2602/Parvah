@@ -1,189 +1,309 @@
-"use client";
-import { useEffect, useState, useRef } from "react";
-import { SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
-import { io } from "socket.io-client";
+'use client'
+import { motion } from 'framer-motion'
 
-const socket = io("https://your-websocket-server.com"); // Replace with your WebSocket server URL
+const fadeInUp = {
+  initial: { opacity: 0, y: 60 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6 }
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.2
+    }
+  }
+};
 
 export default function Home() {
-  const { isSignedIn, user } = useUser();
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [callActive, setCallActive] = useState(false);
-  const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
-  const peerConnection = useRef(null);
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const res = await fetch("/api/getUsers");
-        const data = await res.json();
-
-        if (Array.isArray(data)) {
-          setUsers(data);
-        } else {
-          console.error("Unexpected API response:", data);
-          setUsers([]);
-        }
-      } catch (error) {
-        console.error("Error fetching users:", error);
-        setUsers([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, []);
-
-  const startCall = async (remoteUserId) => {
-    setCallActive(true);
-
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    if (localVideoRef.current) {
-      localVideoRef.current.srcObject = stream;
-    }
-
-    peerConnection.current = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-    });
-
-    stream.getTracks().forEach((track) => peerConnection.current.addTrack(track, stream));
-
-    peerConnection.current.ontrack = (event) => {
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = event.streams[0];
-      }
-    };
-
-    peerConnection.current.onicecandidate = (event) => {
-      if (event.candidate) {
-        socket.emit("ice-candidate", { candidate: event.candidate, to: remoteUserId });
-      }
-    };
-
-    const offer = await peerConnection.current.createOffer();
-    await peerConnection.current.setLocalDescription(offer);
-
-    socket.emit("call-user", { offer, to: remoteUserId });
-  };
-
-  useEffect(() => {
-    socket.on("call-received", async ({ offer, from }) => {
-      setCallActive(true);
-
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
-      }
-
-      peerConnection.current = new RTCPeerConnection({
-        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-      });
-
-      stream.getTracks().forEach((track) => peerConnection.current.addTrack(track, stream));
-
-      peerConnection.current.ontrack = (event) => {
-        if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = event.streams[0];
-        }
-      };
-
-      peerConnection.current.onicecandidate = (event) => {
-        if (event.candidate) {
-          socket.emit("ice-candidate", { candidate: event.candidate, to: from });
-        }
-      };
-
-      await peerConnection.current.setRemoteDescription(new RTCSessionDescription(offer));
-      const answer = await peerConnection.current.createAnswer();
-      await peerConnection.current.setLocalDescription(answer);
-
-      socket.emit("answer-call", { answer, to: from });
-    });
-
-    socket.on("call-answered", async ({ answer }) => {
-      await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));
-    });
-
-    socket.on("ice-candidate-received", async ({ candidate }) => {
-      if (peerConnection.current) {
-        await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
-      }
-    });
-
-    return () => {
-      socket.off("call-received");
-      socket.off("call-answered");
-      socket.off("ice-candidate-received");
-    };
-  }, []);
-
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-600 to-purple-700 text-white">
-      <div className="bg-white text-gray-800 p-8 rounded-2xl shadow-lg w-full max-w-lg text-center">
-        {isSignedIn ? (
-          <>
-            <h1 className="text-2xl font-bold">Welcome, {user.fullName} 👋</h1>
-            <img
-              src={user.imageUrl}
-              alt="Profile"
-              className="w-20 h-20 rounded-full mx-auto mt-4 shadow-lg"
-            />
-            <SignOutButton className="mt-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition" />
+    <div className="min-h-screen">
+      {/* Hero Section with Animated Background */}
+      <div className="relative h-screen flex items-center justify-center overflow-hidden">
+        <motion.div 
+          className="absolute inset-0 bg-gradient-to-br from-indigo-600 to-purple-600"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.9 }}
+          transition={{ duration: 1.5 }}
+        >
+          {/* Animated background elements */}
+          <motion.div
+            className="absolute w-72 h-72 bg-white/10 rounded-full"
+            animate={{
+              scale: [1, 1.2, 1],
+              x: [0, 100, 0],
+              y: [0, -50, 0],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            style={{ left: '10%', top: '20%' }}
+          />
+          <motion.div
+            className="absolute w-96 h-96 bg-purple-500/10 rounded-full"
+            animate={{
+              scale: [1.2, 1, 1.2],
+              x: [0, -150, 0],
+              y: [0, 100, 0],
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            style={{ right: '15%', bottom: '15%' }}
+          />
+        </motion.div>
 
-            <h2 className="mt-6 text-xl font-semibold">All Users:</h2>
+        <div className="relative z-10 text-white text-center px-4 sm:px-6 lg:px-8 max-w-4xl">
+          <motion.div
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+            className="space-y-6"
+          >
+            <motion.h1 
+              variants={fadeInUp}
+              className="text-6xl sm:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-purple-200"
+            >
+              Welcome to Pravah
+            </motion.h1>
+            <motion.p 
+              variants={fadeInUp}
+              className="text-xl sm:text-2xl mb-8 leading-relaxed"
+            >
+              Your journey to success begins with a conversation. We're here to listen, guide, and support you.
+              <span className="block mt-4 text-purple-200">
+                Transform your potential into achievement.
+              </span>
+            </motion.p>
+            <motion.div 
+              variants={fadeInUp}
+              className="flex flex-col sm:flex-row gap-4 justify-center"
+            >
+              <motion.a
+                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.9)" }}
+                whileTap={{ scale: 0.95 }}
+                className="px-8 py-4 bg-white text-indigo-600 rounded-full font-semibold shadow-lg transition-all duration-300 hover:shadow-xl"
+                href="/connect"
+              >
+                Start Your Journey
+              </motion.a>
+              <motion.a
+                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
+                whileTap={{ scale: 0.95 }}
+                className="px-8 py-4 bg-transparent border-2 border-white rounded-full font-semibold transition-all duration-300"
+                href="/about"
+              >
+                Learn More
+              </motion.a>
+            </motion.div>
+          </motion.div>
+        </div>
 
-            {loading ? (
-              <p className="text-gray-500 mt-2">Loading users...</p>
-            ) : users.length > 0 ? (
-              <ul className="mt-4 space-y-3">
-                {users.map((u) => (
-                  <li
-                    key={u.id}
-                    className="flex items-center gap-4 bg-gray-100 p-3 rounded-lg shadow-md hover:shadow-lg transition"
-                  >
-                    <img
-                      src={u.imageUrl}
-                      alt="User"
-                      className="w-12 h-12 rounded-full"
-                    />
-                    <p className="text-lg font-medium">{u.fullName || "No Name"}</p>
-                    <button
-                      className="ml-auto bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg transition"
-                      onClick={() => startCall(u.id)}
-                    >
-                      📞 Video Call
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-gray-500 mt-2">No users found.</p>
-            )}
-          </>
-        ) : (
-          <>
-            <h1 className="text-3xl font-bold">Welcome to VideoChat 🎥</h1>
-            <p className="text-gray-600 mt-2">Sign in to start connecting with people.</p>
-            <SignInButton className="mt-6 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg text-lg transition" />
-          </>
-        )}
+        <motion.div 
+          className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
+          animate={{ y: [0, 10, 0] }}
+          transition={{ repeat: Infinity, duration: 2 }}
+        >
+          <svg className="w-8 h-8 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </motion.div>
       </div>
 
-      {callActive && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
-            <h2 className="text-xl font-semibold mb-4">Video Call</h2>
-            <video ref={localVideoRef} autoPlay muted className="w-60 h-40 bg-gray-300 rounded-md" />
-            <video ref={remoteVideoRef} autoPlay className="w-60 h-40 bg-gray-300 rounded-md mt-4" />
-            <button className="mt-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg" onClick={() => setCallActive(false)}>
-              End Call
-            </button>
+      {/* Stats Section */}
+      <div className="py-16 bg-white dark:bg-gray-900">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+        >
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.2 }}
+                className="text-center"
+              >
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  className="p-6 rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900 dark:to-purple-900"
+                >
+                  <div className="text-4xl font-bold text-indigo-600 dark:text-indigo-400">{stat.value}</div>
+                  <div className="mt-2 text-gray-600 dark:text-gray-300">{stat.label}</div>
+                </motion.div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Features Section with Enhanced Animation */}
+      <div className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+              Why Choose Pravah?
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 text-xl max-w-2xl mx-auto">
+              We're not just another platform. We're your partners in growth.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {features.map((feature, index) => (
+              <motion.div
+                key={feature.title}
+                initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50, y: 50 }}
+                whileInView={{ opacity: 1, x: 0, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.2 }}
+                whileHover={{ scale: 1.02 }}
+                className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <div className="flex items-center mb-4">
+                  <motion.span 
+                    whileHover={{ rotate: 360 }}
+                    transition={{ duration: 0.6 }}
+                    className="p-3 bg-indigo-100 dark:bg-indigo-900 rounded-lg"
+                  >
+                    {feature.icon}
+                  </motion.span>
+                  <h3 className="text-2xl font-semibold ml-4">{feature.title}</h3>
+                </div>
+                <p className="text-gray-600 dark:text-gray-400 text-lg">{feature.description}</p>
+                <ul className="mt-6 space-y-3">
+                  {feature.points.map((point, i) => (
+                    <motion.li
+                      key={i}
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      className="flex items-center text-gray-600 dark:text-gray-400"
+                    >
+                      <svg className="w-5 h-5 mr-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      {point}
+                    </motion.li>
+                  ))}
+                </ul>
+              </motion.div>
+            ))}
           </div>
         </div>
-      )}
+      </div>
+
+      {/* Enhanced CTA Section */}
+      <div className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-indigo-600 to-purple-600 relative overflow-hidden">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="max-w-3xl mx-auto text-center text-white relative z-10"
+        >
+          <h2 className="text-4xl sm:text-5xl font-bold mb-6">Ready to Transform Your Journey?</h2>
+          <p className="text-xl mb-8 text-purple-100">
+            Join Pravah today and experience the difference personalized mentorship can make in your career and personal growth.
+          </p>
+          <motion.a
+            whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.95)" }}
+            whileTap={{ scale: 0.95 }}
+            className="inline-block px-8 py-4 bg-white text-indigo-600 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+            href="/connect"
+          >
+            Get Started Now
+          </motion.a>
+        </motion.div>
+
+        {/* Decorative Elements */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute w-96 h-96 rounded-full border-8 border-white -top-20 -left-20 animate-pulse"></div>
+          <div className="absolute w-64 h-64 rounded-full border-8 border-white bottom-10 right-10 animate-pulse delay-300"></div>
+        </div>
+      </div>
     </div>
-  );
+  )
 }
+
+// Stats data
+const stats = [
+  { value: '500+', label: 'Students Mentored' },
+  { value: '50+', label: 'Expert Mentors' },
+  { value: '95%', label: 'Success Rate' },
+  { value: '24/7', label: 'Support Available' },
+];
+
+const features = [
+  {
+    title: "One-on-One Conversations",
+    description: "Real conversations with mentors who understand your journey.",
+    icon: (
+      <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+      </svg>
+    ),
+    points: [
+      "Personalized mentoring sessions",
+      "Real-time problem solving",
+      "Flexible scheduling",
+      "Direct access to industry experts"
+    ]
+  },
+  {
+    title: "Mental & Emotional Support",
+    description: "Navigate challenges with confidence and resilience.",
+    icon: (
+      <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+      </svg>
+    ),
+    points: [
+      "Overcome imposter syndrome",
+      "Build self-confidence",
+      "Stress management techniques",
+      "Work-life balance guidance"
+    ]
+  },
+  {
+    title: "Personalized Career Guidance",
+    description: "Tailored advice for your unique career path.",
+    icon: (
+      <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+      </svg>
+    ),
+    points: [
+      "Custom career roadmaps",
+      "Skill gap analysis",
+      "Industry insights",
+      "Interview preparation"
+    ]
+  },
+  {
+    title: "Community & Safe Space",
+    description: "Join a supportive community of like-minded individuals.",
+    icon: (
+      <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+    ),
+    points: [
+      "Peer learning opportunities",
+      "Knowledge sharing sessions",
+      "Networking events",
+      "Collaborative projects"
+    ]
+  }
+]
