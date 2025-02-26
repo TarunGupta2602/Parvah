@@ -38,7 +38,7 @@ export default function About() {
           <motion.p 
             className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed"
           >
-            At Pravah, we understand that success isn't just about skills—it's about overcoming fears, 
+            At Parvah, we understand that success isn't just about skills—it's about overcoming fears, 
             building confidence, and having someone who truly listens. We focus on tier-3 college students 
             who deserve the same opportunities for growth and success.
           </motion.p>
