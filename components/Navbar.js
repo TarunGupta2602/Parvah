@@ -39,7 +39,7 @@ export default function Navbar() {
                   strokeLinejoin="round"
                 />
               </svg>
-              <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">Pravah</span>
+              <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">Parvah</span>
             </motion.div>
           </Link>
           

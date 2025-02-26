@@ -3,7 +3,7 @@ import './globals.css'
 import Navbar from '@/components/Navbar'
 
 export const metadata = {
-  title: 'Pravah - Personalized Mentorship for Tier-3 College Students',
+  title: 'Parvah - Personalized Mentorship for Tier-3 College Students',
   description: 'Pravah offers personalized mentorship, career guidance, and emotional support for tier-3 college students. Connect with mentors who understand your challenges and guide your growth journey.',
   keywords: [
     'mentorship',
