@@ -27,8 +27,8 @@ const contactInfo = [
       </svg>
     ),
     title: "Location",
-    info: "Hapur, Uttar Pradesh,India",
-    description: "Our main office is located in the heart of Mumbai."
+    info: "Hapur, Uttar Pradesh, India",
+    description: "Our main office is located in the heart of Hapur."
   },
   {
     icon: (

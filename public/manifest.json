@@ -1,0 +1,21 @@
+{
+  "name": "Pravah - Student Mentorship Platform",
+  "short_name": "Pravah",
+  "description": "Personalized mentorship and career guidance for tier-3 college students",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4F46E5",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+} 
