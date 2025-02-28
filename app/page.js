@@ -68,7 +68,7 @@ export default function Home() {
               variants={fadeInUp}
               className="text-6xl sm:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-purple-200"
             >
-              Welcome to Pravah
+              Welcome to Parvah
             </motion.h1>
             <motion.p 
               variants={fadeInUp}
@@ -215,7 +215,7 @@ export default function Home() {
         >
           <h2 className="text-4xl sm:text-5xl font-bold mb-6">Ready to Transform Your Journey?</h2>
           <p className="text-xl mb-8 text-purple-100">
-            Join Pravah today and experience the difference personalized mentorship can make in your career and personal growth.
+            Join Parvah today and experience the difference personalized mentorship can make in your career and personal growth.
           </p>
           <motion.a
             whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.95)" }}
