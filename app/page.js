@@ -154,7 +154,7 @@ export default function Home() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
-              Why Choose Pravah?
+              Why Choose Parvah?
             </h2>
             <p className="text-gray-600 dark:text-gray-400 text-xl max-w-2xl mx-auto">
               We're not just another platform. We're your partners in growth.

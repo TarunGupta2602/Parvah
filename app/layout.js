@@ -4,7 +4,7 @@ import Navbar from '@/components/Navbar'
 
 export const metadata = {
   title: 'Parvah - Personalized Mentorship for Tier-3 College Students',
-  description: 'Pravah offers personalized mentorship, career guidance, and emotional support for tier-3 college students. Connect with mentors who understand your challenges and guide your growth journey.',
+  description: 'Parvah offers personalized mentorship, career guidance, and emotional support for tier-3 college students. Connect with mentors who understand your challenges and guide your growth journey.',
   keywords: [
     'mentorship',
     'career guidance',
@@ -25,7 +25,7 @@ export const metadata = {
   ],
   authors: [{ name: 'Tarun Gupta' }],
   creator: 'Tarun Gupta',
-  publisher: 'Pravah',
+  publisher: 'Parvah',
   formatDetection: {
     email: false,
     address: false,
@@ -85,10 +85,10 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         
         {/* Favicon */}
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" href="/new-favicon.ico" sizes="any" />
+        <link rel="icon" href="/new-icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/new-apple-touch-icon.png" />
+        <link rel="manifest" href="/new-manifest.json" />
 
         {/* Additional SEO meta tags */}
         <meta name="theme-color" content="#4F46E5" />
